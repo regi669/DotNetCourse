@@ -29,7 +29,7 @@ namespace DotNetCourseNew.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ContactNumber = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    AdressId = table.Column<int>(type: "int", nullable: true)
+                    AddressId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

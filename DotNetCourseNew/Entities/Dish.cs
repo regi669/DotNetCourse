@@ -11,6 +11,6 @@ namespace DotNetCourseNew.Entities
 
         public int? RestaurantId { get; set; }
 
-        public virtual Restaurant Restaurant { get; set; }
+        public virtual Restaurant? Restaurant { get; set; }
     }
 }

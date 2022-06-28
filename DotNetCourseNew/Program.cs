@@ -1,15 +1,23 @@
 using DotNetCourseNew.Entities;
+using DotNetCourseNew.Middleware;
+using DotNetCourseNew.Services;
+using DotNetCourseNew.Services.Implementation;
+using NLog.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Logging.AddNLog();
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+
 builder.Services.AddDbContext<RestaurantDbContext>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<ErrorHandlingMiddleware>();
 var app = builder.Build();
 
 
@@ -20,6 +28,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

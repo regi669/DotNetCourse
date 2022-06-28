@@ -12,8 +12,6 @@ namespace DotNetCourseNew.Entities
 
         public string? PostalCode { get; set; }
 
-        public int? RestaurantId { get; set; }
-
-        public virtual Restaurant Restaurant { get; set; }
+        public virtual Restaurant? Restaurant { get; set; }
     }
 }
