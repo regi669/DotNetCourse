@@ -1,4 +1,6 @@
-﻿namespace DotNetCourseNew.Middleware;
+﻿using DotNetCourseNew.Exceptions;
+
+namespace DotNetCourseNew.Middleware;
 
 public class ErrorHandlingMiddleware : IMiddleware
 {
@@ -13,6 +15,11 @@ public class ErrorHandlingMiddleware : IMiddleware
         try
         {
             await next.Invoke(context);
+        }
+        catch(NotFoundException e)
+        {
+            context.Response.StatusCode = 404;
+            await context.Response.WriteAsync(e.Message);
         }
         catch (Exception e)
         {

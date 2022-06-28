@@ -18,9 +18,8 @@ namespace DotNetCourseNew.Controllers
         [HttpDelete("{id:int}")]
         public ActionResult DeleteRestaurantById([FromRoute]int id)
         {
-            if(_service.DeleteById(id))
-                return Ok();
-            return NotFound();
+            _service.DeleteById(id);
+            return Ok();
         }
 
         [HttpGet]
@@ -32,21 +31,12 @@ namespace DotNetCourseNew.Controllers
         public ActionResult<RestaurantDTO> GetOne([FromRoute]int id)
         {
             var restaurantDTO = _service.GetById(id);
-
-            if (restaurantDTO is null)
-            {
-                return NotFound();
-            }
             return Ok(restaurantDTO);
         }
 
         [HttpPost]
         public ActionResult<CreateRestaurantDto> CreateRestaurant([FromBody]CreateRestaurantDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             var restaurantId = _service.CreateRestaurant(dto);
             return Created($"/api/restaurant/{restaurantId}", dto);
         }
@@ -54,12 +44,7 @@ namespace DotNetCourseNew.Controllers
         [HttpPut("{id:int}")]
         public ActionResult<RestaurantDTO> UpdateRestaurantById([FromRoute] int id, [FromBody] UpdateRestaurantDTO dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             var updatedRestaurant = _service.UpdateRestaurantById(id, dto);
-            if (updatedRestaurant is null) return NotFound();
             return Ok(updatedRestaurant);
         }
     }

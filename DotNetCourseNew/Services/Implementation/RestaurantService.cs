@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DotNetCourseNew.Entities;
+using DotNetCourseNew.Exceptions;
 using DotNetCourseNew.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,7 +37,7 @@ public class RestaurantService : IRestaurantService
             .Include(r => r.Dishes)
             .FirstOrDefault(r => r.Id == id);
 
-        if (restaurant is null) return null;
+        if (restaurant is null) throw new NotFoundException("Restaurant Not Found");
 
         return _mapper.Map<RestaurantDTO>(restaurant);
     }
@@ -49,15 +50,14 @@ public class RestaurantService : IRestaurantService
         return restaurant.Id;
     }
 
-    public bool DeleteById(int id)
+    public void DeleteById(int id)
     {
         _logger.LogWarning("Restaurant with id: {Id} DELETE INVOKED", id);
         var restaurant = _dbContext
             .Restaurants.FirstOrDefault(r => r.Id == id);
-        if (restaurant is null) return false;
+        if (restaurant is null) throw new NotFoundException("Restaurant Not Found");
         _dbContext.Restaurants.Remove(restaurant);
         _dbContext.SaveChanges();
-        return true;
     }
 
     public RestaurantDTO UpdateRestaurantById(int id, UpdateRestaurantDTO dto)
@@ -65,7 +65,7 @@ public class RestaurantService : IRestaurantService
         var restaurant = _dbContext
             .Restaurants
             .FirstOrDefault(r => r.Id == id);
-        if (restaurant is null) return null;
+        if (restaurant is null) throw new NotFoundException("Restaurant Not Found");
         restaurant.Name = dto.Name;
         restaurant.Description = dto.Description;
         restaurant.HasDelivery = dto.HasDelivery;
