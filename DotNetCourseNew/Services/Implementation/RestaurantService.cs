@@ -54,8 +54,13 @@ public class RestaurantService : IRestaurantService
     {
         _logger.LogWarning("Restaurant with id: {Id} DELETE INVOKED", id);
         var restaurant = _dbContext
-            .Restaurants.FirstOrDefault(r => r.Id == id);
+            .Restaurants
+            .Include(r => r.Address)
+            .Include(r => r.Dishes)
+            .FirstOrDefault(r => r.Id == id);
         if (restaurant is null) throw new NotFoundException("Restaurant Not Found");
+        _dbContext.Addresses.Remove(restaurant.Address);
+        _dbContext.Dishes.RemoveRange(restaurant.Dishes);
         _dbContext.Restaurants.Remove(restaurant);
         _dbContext.SaveChanges();
     }

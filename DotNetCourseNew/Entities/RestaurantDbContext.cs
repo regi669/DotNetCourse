@@ -8,12 +8,21 @@ namespace DotNetCourseNew.Entities
             "server=localhost;database=dotnetcourse;user=root;password=Kappa123";
 
         public DbSet<Restaurant> Restaurants { get; set; }
+        
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Dish> Dishes { get; set; }
+        
+        public DbSet<User> Users { get; set; }
+
+        public DbSet<Role> Roles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<User>()
+                .HasIndex(d => d.Email)
+                .IsUnique();
+
             modelBuilder.Entity<Restaurant>()
                 .Property(r => r.Name)
                 .IsRequired()
