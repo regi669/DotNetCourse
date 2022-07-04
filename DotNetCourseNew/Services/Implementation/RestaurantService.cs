@@ -1,7 +1,10 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
+using DotNetCourseNew.Authorization.Resource;
 using DotNetCourseNew.Entities;
 using DotNetCourseNew.Exceptions;
 using DotNetCourseNew.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace DotNetCourseNew.Services.Implementation;
@@ -11,12 +14,20 @@ public class RestaurantService : IRestaurantService
     private readonly RestaurantDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly ILogger<RestaurantService> _logger;
+    private readonly IAuthorizationService _authorizationService;
+    private readonly IUserContextService _userContextService;
 
-    public RestaurantService(RestaurantDbContext dbContext, IMapper mapper, ILogger<RestaurantService> logger)
+    public RestaurantService(RestaurantDbContext dbContext, 
+        IMapper mapper, 
+        ILogger<RestaurantService> logger,
+        IAuthorizationService authorizationService,
+        IUserContextService userContextService)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _logger = logger;
+        _authorizationService = authorizationService;
+        _userContextService = userContextService;
     }
 
     public IEnumerable<RestaurantDTO> GetAll()
@@ -45,6 +56,7 @@ public class RestaurantService : IRestaurantService
     public int CreateRestaurant(CreateRestaurantDto dto)
     {
         var restaurant = _mapper.Map<Restaurant>(dto);
+        restaurant.CreatedById = _userContextService.GetUserId;
         _dbContext.Restaurants.Add(restaurant);
         _dbContext.SaveChanges();
         return restaurant.Id;
@@ -71,6 +83,14 @@ public class RestaurantService : IRestaurantService
             .Restaurants
             .FirstOrDefault(r => r.Id == id);
         if (restaurant is null) throw new NotFoundException("Restaurant Not Found");
+        
+        var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, 
+            restaurant, 
+            new ResourceOperationRequirement(ResourceOperation.Update)).Result;
+        if (!authorizationResult.Succeeded)
+        {
+            throw new ForbidException();
+        }
         restaurant.Name = dto.Name;
         restaurant.Description = dto.Description;
         restaurant.HasDelivery = dto.HasDelivery;

@@ -1,5 +1,6 @@
 using System.Text;
 using DotNetCourseNew.Authorization;
+using DotNetCourseNew.Authorization.Resource;
 using DotNetCourseNew.Configuration;
 using DotNetCourseNew.Entities;
 using DotNetCourseNew.Middleware;
@@ -45,8 +46,11 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("PolandNationality", b => b.RequireClaim("Nationality", "Poland"));
     options.AddPolicy("AtLeast20YearsOld", b => b.AddRequirements(new MinimumAgeRequirement(20)));
+    options.AddPolicy("AtLeast2RCreated", b => b.AddRequirements(new MinimumRestaurantsCreated(2)));
 });
 builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, MinimumRestaurantsCreatedHandler>();
 
 
 builder.Services.AddControllers().AddFluentValidation();
@@ -61,7 +65,8 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDTO>, RegisterUserDTOValidator>();
 builder.Services.AddScoped<IValidator<LoginUserDto>, LoginUserDTOValidator>();
-
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<RequestTimeMiddleware>();

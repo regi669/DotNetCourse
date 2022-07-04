@@ -1,4 +1,5 @@
-﻿using DotNetCourseNew.Models;
+﻿using System.Security.Claims;
+using DotNetCourseNew.Models;
 using DotNetCourseNew.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ namespace DotNetCourseNew.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "AtLeast2RCreated")]
         public ActionResult<IEnumerable<RestaurantDTO>> GetAll()
         {
             return Ok(_service.GetAll());

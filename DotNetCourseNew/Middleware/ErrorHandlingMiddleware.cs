@@ -28,6 +28,10 @@ public class ErrorHandlingMiddleware : IMiddleware
                 context.Response.StatusCode = 400;
                 await context.Response.WriteAsync(e.Message);
             }
+            else if (e is ForbidException)
+            {
+                context.Response.StatusCode = 403;
+            }
             else
             {
                 _logger.LogError(e, e.Message);
