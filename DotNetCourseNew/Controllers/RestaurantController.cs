@@ -1,11 +1,13 @@
 ﻿using DotNetCourseNew.Models;
 using DotNetCourseNew.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DotNetCourseNew.Controllers
 {
     [ApiController]
     [Route("api/restaurant")]
+    [Authorize]
     public class RestaurantController : ControllerBase
     {
         private readonly IRestaurantService _service;
@@ -16,6 +18,7 @@ namespace DotNetCourseNew.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Policy = "PolandNationality")]
         public ActionResult DeleteRestaurantById([FromRoute]int id)
         {
             _service.DeleteById(id);
@@ -27,7 +30,9 @@ namespace DotNetCourseNew.Controllers
         {
             return Ok(_service.GetAll());
         }
+        
         [HttpGet("{id:int}")]
+        [AllowAnonymous]
         public ActionResult<RestaurantDTO> GetOne([FromRoute]int id)
         {
             var restaurantDTO = _service.GetById(id);

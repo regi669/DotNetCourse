@@ -1,4 +1,5 @@
 using System.Text;
+using DotNetCourseNew.Authorization;
 using DotNetCourseNew.Configuration;
 using DotNetCourseNew.Entities;
 using DotNetCourseNew.Middleware;
@@ -8,6 +9,7 @@ using DotNetCourseNew.Services;
 using DotNetCourseNew.Services.Implementation;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -38,6 +40,14 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authConfig.JWTKey)),
     };
 });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("PolandNationality", b => b.RequireClaim("Nationality", "Poland"));
+    options.AddPolicy("AtLeast20YearsOld", b => b.AddRequirements(new MinimumAgeRequirement(20)));
+});
+builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
+
 
 builder.Services.AddControllers().AddFluentValidation();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

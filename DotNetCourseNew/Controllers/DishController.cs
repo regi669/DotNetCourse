@@ -1,11 +1,13 @@
 ﻿using DotNetCourseNew.Models;
 using DotNetCourseNew.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DotNetCourseNew.Controllers
 {
     [ApiController]
     [Route("api/restaurant/{restaurantId}/dish")]
+    [Authorize]
     public class DishController : ControllerBase
     {
         private readonly IDishService _service;
@@ -29,12 +31,14 @@ namespace DotNetCourseNew.Controllers
         }
 
         [HttpGet("{dishId}")]
+        [Authorize(Policy = "AtLeast20YearsOld")]
         public ActionResult<DishDTO> GetOne([FromRoute] int restaurantId, [FromRoute] int dishId)
         {
             return Ok(_service.GetDishByIdRestaurantId(restaurantId, dishId));
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Manager")]
         public ActionResult<List<DishDTO>> GetAll([FromRoute] int restaurantId)
         {
             return Ok(_service.GetDishesByRestaurantId(restaurantId));
