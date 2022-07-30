@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Linq.Expressions;
+using System.Security.Claims;
 using AutoMapper;
 using DotNetCourseNew.Authorization.Resource;
 using DotNetCourseNew.Entities;
@@ -17,8 +18,8 @@ public class RestaurantService : IRestaurantService
     private readonly IAuthorizationService _authorizationService;
     private readonly IUserContextService _userContextService;
 
-    public RestaurantService(RestaurantDbContext dbContext, 
-        IMapper mapper, 
+    public RestaurantService(RestaurantDbContext dbContext,
+        IMapper mapper,
         ILogger<RestaurantService> logger,
         IAuthorizationService authorizationService,
         IUserContextService userContextService)
@@ -39,15 +40,30 @@ public class RestaurantService : IRestaurantService
             .Where(r => query.SearchPhrase == null
                         || (r.Name.ToLower().Contains(query.SearchPhrase.ToLower())
                             || r.Description.ToLower().Contains(query.SearchPhrase.ToLower())));
-        
-        
+
+        if (!string.IsNullOrEmpty(query.SortBy))
+        {
+            var columnSelector = new Dictionary<string, Expression<Func<Restaurant, object>>>()
+            {
+                { nameof(Restaurant.Name) , r => r.Name },
+                { nameof(Restaurant.Description) , r => r.Description },
+                { nameof(Restaurant.Category) , r => r.Category }
+            };
+
+            var selectedColumn = columnSelector[query.SortBy];
+            
+            baseQuery = query.SortDirection == SortDirection.ASC
+                ? baseQuery.OrderBy(selectedColumn)
+                : baseQuery.OrderByDescending(selectedColumn);
+        }
+
         var restaurants = baseQuery
             .Skip(query.PageSize * (query.PageNumber - 1))
             .Take(query.PageSize)
             .ToList();
 
         var totalCount = baseQuery.Count();
-        
+
         var restaurantDtos = _mapper.Map<List<RestaurantDTO>>(restaurants);
         var pageResult = new PageResult<RestaurantDTO>(restaurantDtos, totalCount, query.PageSize, query.PageNumber);
         return pageResult;
@@ -96,14 +112,15 @@ public class RestaurantService : IRestaurantService
             .Restaurants
             .FirstOrDefault(r => r.Id == id);
         if (restaurant is null) throw new NotFoundException("Restaurant Not Found");
-        
-        var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, 
-            restaurant, 
+
+        var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User,
+            restaurant,
             new ResourceOperationRequirement(ResourceOperation.Update)).Result;
         if (!authorizationResult.Succeeded)
         {
             throw new ForbidException();
         }
+
         restaurant.Name = dto.Name;
         restaurant.Description = dto.Description;
         restaurant.HasDelivery = dto.HasDelivery;
