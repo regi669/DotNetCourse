@@ -30,14 +30,27 @@ public class RestaurantService : IRestaurantService
         _userContextService = userContextService;
     }
 
-    public IEnumerable<RestaurantDTO> GetAll()
+    public PageResult<RestaurantDTO> GetAll(RestaurantQuery? query)
     {
-        var restaurants = _dbContext
+        var baseQuery = _dbContext
             .Restaurants
             .Include(r => r.Address)
             .Include(r => r.Dishes)
+            .Where(r => query.SearchPhrase == null
+                        || (r.Name.ToLower().Contains(query.SearchPhrase.ToLower())
+                            || r.Description.ToLower().Contains(query.SearchPhrase.ToLower())));
+        
+        
+        var restaurants = baseQuery
+            .Skip(query.PageSize * (query.PageNumber - 1))
+            .Take(query.PageSize)
             .ToList();
-        return _mapper.Map<List<RestaurantDTO>>(restaurants);
+
+        var totalCount = baseQuery.Count();
+        
+        var restaurantDtos = _mapper.Map<List<RestaurantDTO>>(restaurants);
+        var pageResult = new PageResult<RestaurantDTO>(restaurantDtos, totalCount, query.PageSize, query.PageNumber);
+        return pageResult;
     }
 
     public RestaurantDTO GetById(int id)

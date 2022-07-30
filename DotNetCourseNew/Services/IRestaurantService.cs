@@ -6,7 +6,7 @@ namespace DotNetCourseNew.Services;
 
 public interface IRestaurantService
 {
-    public IEnumerable<RestaurantDTO> GetAll();
+    public PageResult<RestaurantDTO> GetAll(RestaurantQuery? query);
     public RestaurantDTO GetById(int id);
     public int CreateRestaurant(CreateRestaurantDto dto);
     public void DeleteById(int id);

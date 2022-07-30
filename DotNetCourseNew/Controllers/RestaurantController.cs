@@ -28,9 +28,9 @@ namespace DotNetCourseNew.Controllers
 
         [HttpGet]
         [Authorize(Policy = "AtLeast2RCreated")]
-        public ActionResult<IEnumerable<RestaurantDTO>> GetAll()
+        public ActionResult<PageResult<RestaurantDTO>> GetAll([FromQuery]RestaurantQuery? query)
         {
-            return Ok(_service.GetAll());
+            return Ok(_service.GetAll(query));
         }
         
         [HttpGet("{id:int}")]
