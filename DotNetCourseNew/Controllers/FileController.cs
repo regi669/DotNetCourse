@@ -9,6 +9,7 @@ namespace DotNetCourseNew.Controllers
     public class FileController : ControllerBase
     {
         [HttpGet]
+        [ResponseCache(Duration = 1200, VaryByQueryKeys = new []{"filename"})]
         public ActionResult GetFile([FromQuery] string fileName)
         {
             var rootPath = Directory.GetCurrentDirectory();

@@ -81,7 +81,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
+app.UseResponseCaching();
 app.UseStaticFiles();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
