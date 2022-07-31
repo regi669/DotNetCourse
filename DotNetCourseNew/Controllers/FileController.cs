@@ -8,6 +8,7 @@ namespace DotNetCourseNew.Controllers
     [Authorize]
     public class FileController : ControllerBase
     {
+        [HttpGet]
         public ActionResult GetFile([FromQuery] string fileName)
         {
             var rootPath = Directory.GetCurrentDirectory();
@@ -25,6 +26,26 @@ namespace DotNetCourseNew.Controllers
             contentProvider.TryGetContentType(filePath, out string contentType);
             
             return File(fileContent, contentType, fileName);
+        }
+
+        [HttpPost]
+        public ActionResult Upload([FromForm] IFormFile file)
+        {
+            if (file is not null && file.Length > 0)
+            {
+                var rootPath = Directory.GetCurrentDirectory();
+            
+                var filePath = $"{rootPath}/PrivateFiles/{file.FileName}";
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+
+                return Ok();
+            }
+
+            return BadRequest();
         }
     }
 }
