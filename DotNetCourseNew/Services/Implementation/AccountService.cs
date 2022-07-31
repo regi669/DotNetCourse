@@ -27,16 +27,16 @@ public class AccountService : IAccountService
     }
     public void Register(RegisterUserDTO dto)
     {
-        var netUser = new User()
+        var newUser = new User()
         {
             Email = dto.Email,
             DateOfBirth = dto.DateOfBirth,
             Nationality = dto.Nationality,
             RoleId = dto.RoleId
         };
-        var passwordHash = _passwordHasher.HashPassword(netUser, dto.Password);
-        netUser.PasswordHash = passwordHash;
-        _dbContext.Users.Add(netUser);
+        var passwordHash = _passwordHasher.HashPassword(newUser, dto.Password);
+        newUser.PasswordHash = passwordHash;
+        _dbContext.Users.Add(newUser);
         _dbContext.SaveChanges();
     }
 
