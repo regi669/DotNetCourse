@@ -71,6 +71,16 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<RequestTimeMiddleware>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontEndClient", corsBuilder =>
+        corsBuilder.AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowAnyOrigin()
+    );
+});
+
 var app = builder.Build();
 
 
@@ -81,6 +91,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("FrontEndClient");
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestTimeMiddleware>();
 app.UseAuthentication();
