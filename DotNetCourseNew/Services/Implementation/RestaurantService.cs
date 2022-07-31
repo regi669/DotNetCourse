@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Security.Claims;
 using AutoMapper;
 using DotNetCourseNew.Authorization.Resource;
 using DotNetCourseNew.Entities;

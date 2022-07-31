@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using DotNetCourseNew.Entities;
-using DotNetCourseNew.Models;
+﻿using DotNetCourseNew.Models;
 
 namespace DotNetCourseNew.Services;
 

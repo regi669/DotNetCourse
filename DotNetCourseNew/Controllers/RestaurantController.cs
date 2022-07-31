@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using DotNetCourseNew.Models;
+﻿using DotNetCourseNew.Models;
 using DotNetCourseNew.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
