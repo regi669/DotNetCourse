@@ -4,9 +4,10 @@ namespace DotNetCourseNew.Entities
 {
     public class RestaurantDbContext : DbContext
     {
-        private readonly string _connectionString =
-            "server=localhost;database=dotnetcourse;user=root;password=Kappa123";
-
+        public RestaurantDbContext(DbContextOptions<RestaurantDbContext> dbContextOptions) : base(dbContextOptions)
+        {
+            
+        }
         public DbSet<Restaurant> Restaurants { get; set; }
         
         public DbSet<Address> Addresses { get; set; }
@@ -40,11 +41,6 @@ namespace DotNetCourseNew.Entities
                 .Property(a => a.Street)
                 .IsRequired()
                 .HasMaxLength(50);
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseMySql(_connectionString, ServerVersion.AutoDetect(_connectionString));
         }
     }
 }

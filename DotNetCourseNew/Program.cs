@@ -1,4 +1,5 @@
 using System.Text;
+using DotNetCourseNew;
 using DotNetCourseNew.Authorization;
 using DotNetCourseNew.Authorization.Resource;
 using DotNetCourseNew.Configuration;
@@ -12,6 +13,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NLog.Extensions.Logging;
 
@@ -41,6 +43,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddDbContext<RestaurantDbContext>
+    (options => options.UseSqlServer(builder.Configuration.GetConnectionString("RestaurantDB")));
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("PolandNationality", b => b.RequireClaim("Nationality", "Poland"));
@@ -57,7 +62,6 @@ builder.Services.AddControllers().AddFluentValidation();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<RestaurantDbContext>();
 builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 builder.Services.AddScoped<IDishService, DishService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -70,6 +74,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<RequestTimeMiddleware>();
+builder.Services.AddScoped<RestaurantSeeder>();
 
 builder.Services.AddCors(options =>
 {
@@ -81,6 +86,10 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+var scope = app.Services.CreateScope();
+var seeder = scope.ServiceProvider.GetRequiredService<RestaurantSeeder>();
+    
 app.UseResponseCaching();
 app.UseStaticFiles();
 // Configure the HTTP request pipeline.
@@ -91,6 +100,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("FrontEndClient");
+seeder.Seed();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestTimeMiddleware>();
 app.UseAuthentication();
